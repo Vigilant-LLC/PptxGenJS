@@ -1180,8 +1180,8 @@ export function genXmlTextBody(slideObj: ISlideObject | TableCell): string {
 	tmpTextObjects.forEach((itext, idx) => {
 		if (!itext.text) itext.text = ''
 
-		// A: Set options
-		itext.options = itext.options || opts || {}
+		// A: Set options -- must merge for breakLine logic
+ 		itext.options = { ...opts, ...itext.options }
 		if (idx === 0 && itext.options && !itext.options.bullet && opts.bullet) itext.options.bullet = opts.bullet
 
 		// B: Cast to text-object and fix line-breaks (if needed)
@@ -1193,9 +1193,14 @@ export function genXmlTextBody(slideObj: ISlideObject | TableCell): string {
 		// C: If text string has line-breaks, then create a separate text-object for each (much easier than dealing with split inside a loop below)
 		// NOTE: Filter for trailing lineBreak prevents the creation of an empty textObj as the last item
 		if (itext.text.indexOf(CRLF) > -1 && itext.text.match(/\n$/g) === null) {
-			itext.text.split(CRLF).forEach(line => {
-				itext.options.breakLine = true
-				arrTextObjects.push({ text: line, options: itext.options })
+			const parts = itext.text.split(CRLF)
+ 			parts.forEach((line, lineIdx) => {
+ 				const isLast = lineIdx === parts.length - 1
+ 				let lineOpts = { ...itext.options }
+ 				if (!isLast || (isLast && line === '')) {
+ 					lineOpts.breakLine = true
+ 				}
+ 				arrTextObjects.push({ text: line, options: lineOpts })
 			})
 		} else {
 			arrTextObjects.push(itext)
@@ -1216,7 +1221,7 @@ export function genXmlTextBody(slideObj: ISlideObject | TableCell): string {
 		} else if (arrTexts.length > 0 && textObj.options.bullet && arrTexts.length > 0) {
 			arrLines.push(arrTexts)
 			arrTexts = []
-			textObj.options.breakLine = false // For cases with both `bullet` and `brekaLine` - prevent double lineBreak
+			textObj.options.breakLine = false // For cases with both `bullet` and `breakLine` - prevent double lineBreak
 		}
 
 		// B: Add this text to current line
@@ -1237,7 +1242,7 @@ export function genXmlTextBody(slideObj: ISlideObject | TableCell): string {
 
 	// STEP 6: Loop over each line and create paragraph props, text run, etc.
 	arrLines.forEach(line => {
-		let reqsClosingFontSize = false
+		let reqsClosingFontSize = falseget
 
 		// A: Start paragraph, add paraProps
 		strSlideXml += '<a:p>'
