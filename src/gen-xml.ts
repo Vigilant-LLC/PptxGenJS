@@ -1242,7 +1242,7 @@ export function genXmlTextBody(slideObj: ISlideObject | TableCell): string {
 
 	// STEP 6: Loop over each line and create paragraph props, text run, etc.
 	arrLines.forEach(line => {
-		let reqsClosingFontSize = falseget
+		let reqsClosingFontSize = false
 
 		// A: Start paragraph, add paraProps
 		strSlideXml += '<a:p>'
